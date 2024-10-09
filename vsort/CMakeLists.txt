@@ -69,6 +69,10 @@ if(ENABLE_COREML)
     add_compile_definitions(ENABLE_COREML=1)
 endif()
 
+if(ENABLE_TENSORRT)
+    add_compile_definitions(ENABLE_TENSORRT=1)
+endif()
+
 target_include_directories(vsort PUBLIC
     "${PROJECT_BINARY_DIR}"
 )
