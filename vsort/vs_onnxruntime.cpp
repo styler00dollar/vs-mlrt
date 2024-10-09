@@ -422,7 +422,8 @@ enum class Backend {
     CPU = 0,
     CUDA = 1,
     COREML = 2,
-    DML = 3
+    TENSORRT = 3,
+    DML = 4
 };
 
 #ifdef ENABLE_CUDA
@@ -963,6 +964,12 @@ static void VS_CC vsOrtCreate(
     } else if (strcmp(provider, "COREML") == 0) {
         d->backend = Backend::COREML;
 #endif // ENABLE_COREML
+
+#ifdef ENABLE_TENSORRT
+    } else if (strcmp(provider, "TENSORRT") == 0) {
+        d->backend = Backend::TENSORRT;
+#endif // ENABLE_TENSORRT
+
 #ifdef ENABLE_DML
     } else if (strcmp(provider, "DML") == 0) {
         d->backend = Backend::DML;
@@ -1239,6 +1246,16 @@ static void VS_CC vsOrtCreate(
             ));
         }
 #endif // ENABLE_COREML
+
+#ifdef ENABLE_TENSORRT
+        if (d->backend == Backend::TENSORRT) {
+            checkError(OrtSessionOptionsAppendExecutionProvider_Tensorrt(
+                session_options,
+                0
+            ));
+        }
+#endif // ENABLE_TENSORRT
+        
 #ifdef ENABLE_DML
         if (d->backend == Backend::DML) {
             const OrtDmlApi * ortdmlapi {};
@@ -1457,6 +1474,9 @@ VS_EXTERNAL_API(void) VapourSynthPluginInit(
 #endif
 #ifdef ENABLE_COREML
         vsapi->propSetData(out, "providers", "COREML", -1, paAppend);
+#endif
+#ifdef ENABLE_TENSORRT
+        vsapi->propSetData(out, "providers", "TENSORRT", -1, paAppend);
 #endif
 #ifdef ENABLE_DML
         vsapi->propSetData(out, "providers", "DML", -1, paAppend);
